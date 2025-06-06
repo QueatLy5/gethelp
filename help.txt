@@ -1,1 +1,67 @@
 Я тебя люблю <3
+//ФУНКЦИЯ ВХОДА В АККАУНТ
+private void Enter()
+{
+    //ПРОВЕРКА НА ЗАПОЛНЕННЫЕ ЯЧЕЙКИ
+    if (LoginTextBox.Text.Length == 0 || PasswordTextBox.Text.Length == 0)
+    {
+        MessageBox.Show("Запоните все ячейки!");
+        return;
+    }
+    //ТУТ РАБОТА С БД
+    using (var db = new marketPlaceQDEntities())
+    {
+        //СОЗДАЕМ ПЕРЕМЕННУЮ USER ССЫЛАЮЩАЯСЯ НА ПОЛЬЗОВАТЕЛЯ ИЗ БД ГДЕ ЛОГИН И ПАРОЛЬ ВЕРНЫЕ
+        var user = db.User.FirstOrDefault(u=>u.login == LoginTextBox.Text.ToLower() && u.password == PasswordTextBox.Text.ToLower());
+        if (user == null)//ЕСЛИ НЕ НАЙДЕН ПОЛЬЗОВАТЕЛЬ С ТАКИМ ПАРОЛЕМ ИЛИ ЛОГИНОМ ТО ОШИБКА
+        {
+            MessageBox.Show("Неверные данные!");
+            return;
+        }
+        //ТУТ МОЕ, ЭТО НЕ НАДО
+        InitProducts();
+        //ЭТО ПЕРЕХОД НА ДРУГУЮ СТРАНИЦУ, ТИПО ВХОД УСПЕШЕН
+        ShowWindow(CatalogWindow);
+    }
+}
+
+
+
+//РЕГИСТРАЦИЯ
+private void Reg()
+{
+    //ПРОВЕРКА НА ЗАПОЛНЕННЫЕ ЯЧЕЙКИ
+    if (LoginTextBox.Text.Length == 0 || PasswordTextBox.Text.Length == 0)
+    {
+        MessageBox.Show("Запоните все ячейки!");
+        return;
+    }
+    //ТУТ РАБОТА С БД
+    using (var db = new marketPlaceQDEntities())
+    {
+        //СОЗДАЕМ ПЕРЕМЕННУЮ USER ССЫЛАЮЩАЯСЯ НА ПОЛЬЗОВАТЕЛЯ ИЗ БД ГДЕ ЛОГИН ВЕРНЫЙ
+        var user = db.User.FirstOrDefault(u => u.login == LoginTextBox.Text.ToLower());
+        if (user != null)//ЕСЛИ ТАКОЙ ПОЛЬЗОВАТЕЛЬ СУЩЕСТВУЕТ, ТО ОШИБКА
+        {
+            MessageBox.Show("Этот логин занят!");
+            return;
+        }
+        //ЕСЛИ ПОЛЬЗОВАТЕЛЯ ТАКОГО НЕТБ ТО СОЗДАЕМ НОВЫЙ ОБЪЕКТ ПОЛЬЗОВАТЕЛЯ И ЗАПОЛНЯЕМ ЯЧЕЙКИ ДАННЫМИ
+        var newUser = new User
+        {
+            name = LoginTextBox.Text.ToLower(),
+            login = LoginTextBox.Text.ToLower(),
+            password = PasswordTextBox.Text.ToLower(),
+            age = 0,
+            address = ""
+        };
+        //ЗАНОСИМ ПОЛЬЗОВТЕЛЯ В ТАБЛИЦУ
+        db.User.Add(newUser);
+        //И ОБЯЗАТЕЛЬНО СОХРАНЯЕМ
+        db.SaveChanges();
+        //ЭТО МОЕ
+        InitProducts();
+        //ТУТ ПЕРЕХОД НА ДРУГУЮ СТРАНИЦУ
+        ShowWindow(CatalogWindow);
+    }
+}
